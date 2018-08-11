@@ -1,11 +1,16 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const passport = require("passport");
 const PORT = process.env.PORT || 5000;
 
 const app = express();
 // app middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(passport.initialize());
+
+// passport config
+require("./config/passport")(passport);
 
 // import routes
 const authRoute = require("./routes/api/auth");
@@ -28,7 +33,5 @@ mongoose
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
 app.use("/api/posts", postsRoute);
-
-app.get("/", (req, res) => res.send(`Hello`));
 
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
