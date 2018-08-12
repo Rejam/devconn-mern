@@ -1,7 +1,10 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
 const passport = require("passport");
-const validateProfileData = require("../../validation/profile");
+
+// Validation
+const validate = require("../../validation");
+const profileValidation = require("../../validation/profile");
 
 // models
 const Profile = require("../../models/Profile");
@@ -57,33 +60,36 @@ router.post(
     const profileData = { ...req.body };
     profileData.user = req.user.id;
     // Skills - split csv into array
-    if (req.body.skills) profileData.skills = req.body.skills.split(",");
-    const { errors, value } = validateProfileData(profileData);
-
-    Profile.findOne({ user: req.user.id }).then(user => {
-      // profile exists: update profile
-      if (user) {
-        Profile.findOneAndUpdate(
-          { user: req.user.id },
-          { $set: profileData },
-          { new: true }
-        ).then(profile => res.json(profile));
-      }
-      // profile doesn't exist
-      else {
-        // check handle is unique
-        Profile.findOne({ handle: profileData.handle }).then(profile => {
-          if (profile) {
-            errors.handle = "That handle already exists";
-            res.status(400).json(errors);
-          } else {
-            // Save new profile
-            new Profile(profileData).save().then(profile => res.json(profile));
-          }
-        });
-      }
-    });
-    res.json(profileData);
+    const { skills } = req.body;
+    if (skills) profileData.skills = skills.split(",");
+    // validate
+    const { errors, isValid } = validate(profileData, profileValidation);
+    if (!isValid) {
+      res.status(400).json(errors);
+    } else {
+      Profile.findOne({ user: req.user.id }).then(user => {
+        if (user) {
+          // profile exists: update profile
+          Profile.findOneAndUpdate(
+            { user: req.user.id },
+            { $set: profileData },
+            { new: true }
+          ).then(profile => res.json(profile));
+        } else {
+          // profile doesn't exist
+          // check handle is unique
+          Profile.findOne({ handle: profileData.handle }).then(profile => {
+            if (profile) {
+              errors.handle = "That handle already exists";
+              res.status(400).json(errors);
+            } else {
+              // Save new profile
+              Profile.create(profileData).then(profile => res.json(profile));
+            }
+          });
+        }
+      });
+    }
   }
 );
 module.exports = router;

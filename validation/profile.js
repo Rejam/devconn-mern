@@ -47,18 +47,4 @@ const profileSchema = Joi.object()
   })
   .required();
 
-const options = {
-  abortEarly: false
-};
-module.exports = function validateProfileData(data) {
-  const { error } = Joi.validate(data, profileSchema, options);
-
-  // create object of propname: error_message for each error
-  const errors = error
-    ? error.details.reduce((obj, err) => {
-        return { ...obj, [err.context.key]: err.message };
-      }, {})
-    : {};
-  const isValid = error === null;
-  return { errors, isValid };
-};
+module.exports = profileSchema;

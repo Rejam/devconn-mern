@@ -6,8 +6,9 @@ const passport = require("passport");
 const secretOrKey = require("../../config/keys").secretOrKey;
 
 // Input validation
-const validateRegisterData = require("../../validation/register");
-const validateLoginData = require("../../validation/login");
+const validate = require("../../validation/");
+const registerValidation = require("../../validation/register");
+const loginValidation = require("../../validation/login");
 
 // User model
 const User = require("../../models/User");
@@ -26,7 +27,7 @@ router.get("/test", (req, res) => res.json({ msg: "auth route works" }));
  */
 router.post("/register", (req, res) => {
   // validation
-  const { errors, isValid } = validateRegisterData(req.body);
+  const { errors, isValid } = validate(req.body, registerValidation);
   if (!isValid) return res.status(400).json(errors);
 
   const { name, email, password } = req.body;
@@ -71,7 +72,7 @@ router.post("/register", (req, res) => {
  * @access Public
  */
 router.post("/login", (req, res) => {
-  const { errors, isValid } = validateLoginData(req.body);
+  const { errors, isValid } = validate(req.body, loginValidation);
   if (!isValid) return res.status(400).json(errors);
 
   const { email, password } = req.body;
