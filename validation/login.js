@@ -1,21 +1,30 @@
-const Validator = require("validator");
+const Joi = require("joi");
 
-module.exports = function validateLoginInput(data) {
-  const { email, password } = data;
-  const errors = {};
+const loginSchema = Joi.object()
+  .keys({
+    email: Joi.string()
+      .email({ minDomainAtoms: 2 })
+      .required(),
+    password: Joi.string()
+      .min(6)
+      .max(30)
+      .required()
+  })
+  .required();
 
-  // Validate email
-  if (!Validator.isEmail(email)) {
-    errors.email = "Should be an email address";
-  }
+const options = {
+  abortEarly: false
+};
 
-  // Validate password
-  if (!Validator.isLength(password, { min: 6, max: 30 })) {
-    errors.password = "Password must be between 6 and 30 characters.";
-  }
+module.exports = function validateLoginData(data) {
+  const { error } = Joi.validate(data, loginSchema, options);
 
-  return {
-    errors,
-    isValid: !Object.keys(errors).length
-  };
+  // create object of propname: error_message for each error
+  const errors = error
+    ? error.details.reduce((obj, err) => {
+        return { ...obj, [err.context.key]: err.message };
+      }, {})
+    : {};
+  const isValid = error === null;
+  return { errors, isValid };
 };
