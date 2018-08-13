@@ -11,7 +11,7 @@ const handleProfileRoute = require("./handleProfileRoute");
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
-  handleProfileRoute.getCurrentProfile
+  handleProfileRoute.getCurrentProfile()
 );
 
 /**

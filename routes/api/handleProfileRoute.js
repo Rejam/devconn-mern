@@ -46,7 +46,7 @@ const updateProfile = () => (req, res) => {
   });
 };
 
-const getCurrentProfile = (req, res) => {
+const getCurrentProfile = () => (req, res) => {
   const errors = {};
   // pull user id from authenticated user
   const { id } = req.user;
