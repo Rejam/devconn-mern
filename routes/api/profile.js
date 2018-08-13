@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const mongoose = require("mongoose");
 const passport = require("passport");
 
 // Validation
@@ -18,21 +17,24 @@ const User = require("../../models/User");
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
+  (req, res) => {
     const errors = {};
     // pull user id from authenticated user
     const { id } = req.user;
 
     // try to find user's profile
-    const profile = await Profile.findOne({ user: id });
-    if (!profile) {
-      // profile not found
-      errors.profile = "Profile not found";
-      return res.status(404).json(errors);
-    } else {
-      // profile found
-      return res.json(profile);
-    }
+    Profile.findOne({ user: id })
+      .populate("user", ["name", "avatar"])
+      .then(profile => {
+        if (!profile) {
+          // profile not found
+          errors.profile = "Profile not found";
+          return res.status(404).json(errors);
+        }
+        // profile found
+        return res.json(profile);
+      })
+      .catch(err => res.status(404).json(err));
   }
 );
 
