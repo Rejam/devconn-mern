@@ -1,10 +1,16 @@
 const router = require("express").Router();
+const passport = require("passport");
 
+const handlePostRoute = require("./handlePostRoutes");
 /**
- * @route GET api/posts/test
- * @desc posts route
- * @access Public
+ * @route POST api/posts
+ * @desc create Post
+ * @access Private
  */
-router.get("/test", (req, res) => res.json({ msg: "posts route" }));
+router.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  handlePostRoute.addPost()
+);
 
 module.exports = router;
