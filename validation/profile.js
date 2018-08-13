@@ -8,7 +8,7 @@ const profileSchema = Joi.object()
       .max(40)
       .required(),
     company: Joi.string(),
-    website: Joi.string(),
+    website: Joi.string().uri(),
     location: Joi.string(),
     status: Joi.string().required(),
     skills: Joi.array().items(Joi.string()),
@@ -37,11 +37,11 @@ const profileSchema = Joi.object()
       })
     ),
     social: Joi.object().keys({
-      youtube: Joi.string(),
-      twitter: Joi.string(),
-      facebook: Joi.string(),
-      linkedin: Joi.string(),
-      instagram: Joi.string()
+      youtube: Joi.string().uri(),
+      twitter: Joi.string().uri(),
+      facebook: Joi.string().uri(),
+      linkedin: Joi.string().uri(),
+      instagram: Joi.string().uri()
     }),
     date: Joi.date()
   })
