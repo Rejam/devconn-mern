@@ -6,6 +6,7 @@ const educationValidation = require("../../validation/education");
 
 // models
 const Profile = require("../../models/Profile");
+const User = require("../../models/User");
 
 const updateProfile = () => (req, res) => {
   // Get profile data from form
@@ -171,6 +172,57 @@ const addEducation = () => (req, res) => {
   });
 };
 
+const deleteExperience = () => (req, res) => {
+  const errors = {};
+  const { id } = req.params;
+  Profile.findOne({ user: req.user.id })
+    .then(profile => {
+      if (!profile) {
+        errors.profile = "Could not find profile";
+        return res.status(404).json(errors);
+      }
+      console.log(profile.experience, id);
+      profile.experience = profile.experience.filter(
+        exp => exp._id.toString() !== id
+      );
+      profile
+        .save()
+        .then(profile => res.json(profile))
+        .catch(err =>
+          res.state(400).json({ profile: "Could not update profile" })
+        );
+    })
+    .catch(err => res.status(404).json(err));
+};
+
+const deleteEducation = () => (req, res) => {
+  const errors = {};
+  const { id } = req.params;
+  Profile.findOne({ user: req.user.id }).then(profile => {
+    if (!profile) {
+      errors.profile = "Could not find profile";
+      return res.status(404).json(errors);
+    }
+    profile.education = profile.education.filter(
+      edu => edu._id.toString() !== id
+    );
+    profile
+      .save()
+      .then(profile => res.json(profile))
+      .catch(err =>
+        res.status(400).json({ profile: "Could not update profile" })
+      );
+  });
+};
+
+const deleteUser = () => (req, res) => {
+  const errors = {};
+  const { id } = req.user;
+  Profile.findOneAndRemove({ user: id }).then(profile =>
+    User.findByIdAndRemove(id).then(user => res.json({ success: true }))
+  );
+};
+
 module.exports = {
   updateProfile,
   getCurrentProfile,
@@ -178,5 +230,8 @@ module.exports = {
   getProfileById,
   getAllProfiles,
   addExperience,
-  addEducation
+  addEducation,
+  deleteExperience,
+  deleteEducation,
+  deleteUser
 };

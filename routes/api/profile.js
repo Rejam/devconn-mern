@@ -68,4 +68,37 @@ router.post(
   handleProfileRoute.addEducation()
 );
 
+/**
+ * @route DELETE api/profile/experience/:id
+ * @desc delete education
+ * @access Private
+ */
+router.delete(
+  "/experience/:id",
+  passport.authenticate("jwt", { session: false }),
+  handleProfileRoute.deleteExperience()
+);
+
+/**
+ * @route DELETE api/profile/education/:id
+ * @desc delete education
+ * @access Private
+ */
+router.delete(
+  "/education/:id",
+  passport.authenticate("jwt", { session: false }),
+  handleProfileRoute.deleteEducation()
+);
+
+/**
+ * @route DELETE api/profile/
+ * @desc delete user and profile
+ * @access Private
+ */
+router.delete(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  handleProfileRoute.deleteUser()
+);
+
 module.exports = router;
