@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const URLregex = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i;
 
 const profileSchema = Joi.object()
   .keys({
@@ -8,40 +9,32 @@ const profileSchema = Joi.object()
       .max(40)
       .required(),
     company: Joi.string(),
-    website: Joi.string().uri(),
+    website: Joi.string()
+      .regex(URLregex, { name: "website" })
+      .allow(""),
     location: Joi.string(),
     status: Joi.string().required(),
     skills: Joi.array().items(Joi.string()),
     bio: Joi.string(),
     githubusername: Joi.string(),
-    experience: Joi.array().items(
-      Joi.object().keys({
-        title: Joi.string().required(),
-        company: Joi.string().required(),
-        location: Joi.string(),
-        from: Joi.date().required(),
-        to: Joi.date(),
-        current: Joi.boolean(),
-        description: Joi.string()
-      })
-    ),
-    education: Joi.array().items(
-      Joi.object().keys({
-        school: Joi.string().required(),
-        degree: Joi.string().required(),
-        fieldofstudy: Joi.string().required(),
-        from: Joi.date().required(),
-        to: Joi.date(),
-        current: Joi.boolean(),
-        description: Joi.string()
-      })
-    ),
+    experience: Joi.array(),
+    education: Joi.array(),
     social: Joi.object().keys({
-      youtube: Joi.string().uri(),
-      twitter: Joi.string().uri(),
-      facebook: Joi.string().uri(),
-      linkedin: Joi.string().uri(),
-      instagram: Joi.string().uri()
+      youtube: Joi.string()
+        .regex(URLregex, { name: "website" })
+        .allow(""),
+      linkedin: Joi.string()
+        .regex(URLregex, { name: "website" })
+        .allow(""),
+      instagram: Joi.string()
+        .regex(URLregex, { name: "website" })
+        .allow(""),
+      facebook: Joi.string()
+        .regex(URLregex, { name: "website" })
+        .allow(""),
+      twitter: Joi.string()
+        .regex(URLregex, { name: "website" })
+        .allow("")
     }),
     date: Joi.date()
   })
