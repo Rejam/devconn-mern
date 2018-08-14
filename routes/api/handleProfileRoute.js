@@ -9,14 +9,29 @@ const Profile = require("../../models/Profile");
 const User = require("../../models/User");
 
 const updateProfile = () => (req, res) => {
-  // Get profile data from form
-  const profile = { ...req.body };
-  profile.user = req.user.id;
+  // Build profile
+  const newProfile = {
+    user: req.user.id,
+    handle: req.body.handle,
+    company: req.body.company,
+    website: req.body.website,
+    location: req.body.location,
+    status: req.body.location,
+    bio: req.body.bio,
+    githubusername: req.body.githubusername,
+    social: {
+      youtube: req.body.youtube,
+      twitter: req.body.twitter,
+      facebook: req.body.facebook,
+      linkedin: req.body.linkedin,
+      instagram: req.body.instagram
+    }
+  };
   // Skills - split csv into array
   const { skills } = req.body;
-  profile.skills = skills ? skills.split(",").map(s => s.trim()) : [];
+  newProfile.skills = skills ? skills.split(",").map(s => s.trim()) : [];
   // validate
-  const { errors, isValid } = validate(profile, profileValidation);
+  const { errors, isValid } = validate(newProfile, profileValidation);
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -26,14 +41,14 @@ const updateProfile = () => (req, res) => {
       // Profile exists => update
       Profile.findOneAndUpdate(
         { user: req.user.id },
-        { $set: profile },
+        { $set: newProfile },
         { new: true }
       ).then(updatedProfile => res.json(updatedProfile));
     } else {
       // profile doesn't exist
       // check handle is unique
       Profile.findOne({
-        handle: profile.handle
+        handle: newProfile.handle
       }).then(profileWithHandleExists => {
         if (profileWithHandleExists) {
           // @ts-ignore
@@ -41,7 +56,7 @@ const updateProfile = () => (req, res) => {
           return res.status(400).json(errors);
         } else {
           // Save new profile
-          Profile.create(profile).then(newProfile => res.json(newProfile));
+          Profile.create(newProfile).then(newProfile => res.json(newProfile));
         }
       });
     }
