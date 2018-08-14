@@ -53,9 +53,28 @@ const deletePost = () => (req, res) => {
     .catch(_ => res.status(404).json({ error: "Could not find post" }));
 };
 
+const likePost = () => (req, res) => {
+  Post.findById(req.params.id)
+    .then(post => {
+      const alreadyLiked = post.likes.some(id => id.toString() === req.user.id);
+      if (alreadyLiked) {
+        return res
+          .status(403)
+          .json({ error: "User has already liked this post" });
+      }
+      post.likes = [...post.likes, req.user.id];
+      post
+        .save()
+        .then(post => res.json(post))
+        .catch(_ => res.status(404).json({ error: "Unable to save post" }));
+    })
+    .catch(_ => res.status(404).json({ error: "Unable to find post" }));
+};
+
 module.exports = {
   getAllPosts,
   getPost,
   addPost,
-  deletePost
+  deletePost,
+  likePost
 };
