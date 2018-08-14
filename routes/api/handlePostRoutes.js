@@ -57,18 +57,32 @@ const likePost = () => (req, res) => {
   Post.findById(req.params.id)
     .then(post => {
       const alreadyLiked = post.likes.some(id => id.toString() === req.user.id);
-      if (alreadyLiked) {
-        return res
-          .status(403)
-          .json({ error: "User has already liked this post" });
-      }
-      post.likes = [...post.likes, req.user.id];
-      post
-        .save()
-        .then(post => res.json(post))
-        .catch(_ => res.status(404).json({ error: "Unable to save post" }));
+      if (!alreadyLiked) {
+        post.likes = [...post.likes, req.user.id];
+        post
+          .save()
+          .then(post => res.json(post))
+          .catch(_ => res.status(404).json({ error: "Unable to save post" }));
+      } else
+        res.status(403).json({ error: "User has already liked this post" });
     })
     .catch(_ => res.status(404).json({ error: "Unable to find post" }));
+};
+
+const unlikePost = () => (req, res) => {
+  Post.findById(req.params.id)
+    .then(post => {
+      const alreadyLiked = post.likes.some(id => id.toString() === req.user.id);
+      if (alreadyLiked) {
+        post.likes = post.likes.filter(id => id.toString() !== req.user.id);
+        post
+          .save()
+          .then(post => res.json(post))
+          .catch(_ => res.status(404).json({ error: "Unable to save post" }));
+      } else
+        return res.status(403).json({ error: "User has not liked this post" });
+    })
+    .catch(_ => res.status(404).json({ error: "Could not find post" }));
 };
 
 module.exports = {
@@ -76,5 +90,6 @@ module.exports = {
   getPost,
   addPost,
   deletePost,
-  likePost
+  likePost,
+  unlikePost
 };
