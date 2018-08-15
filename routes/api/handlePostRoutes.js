@@ -112,10 +112,13 @@ const deleteComment = (req, res) => {
   Post.findById(id)
     .then(post => {
       const { comments } = post;
+      // check if comment exists
       if (!comments.some(c => c._id.toString() === comment_id))
         return res.status(404).json({ error: "Comment not found" });
 
+      // filter comment from post
       post.comments = comments.filter(c => c._id.toString() !== comment_id);
+      // save updated post
       post
         .save()
         .then(post => res.json(post))
