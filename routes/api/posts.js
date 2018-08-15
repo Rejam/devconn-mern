@@ -8,14 +8,14 @@ const handlePostRoute = require("./handlePostRoutes");
  * @desc Get all Posts
  * @access Public
  */
-router.get("/", handlePostRoute.getAllPosts());
+router.get("/", handlePostRoute.getAllPosts);
 
 /**
  * @route GET api/posts/:id
  * @desc Get a Post
  * @access Public
  */
-router.get("/:id", handlePostRoute.getPost());
+router.get("/:id", handlePostRoute.getPost);
 
 /**
  * @route POST api/posts
@@ -25,7 +25,7 @@ router.get("/:id", handlePostRoute.getPost());
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
-  handlePostRoute.addPost()
+  handlePostRoute.addPost
 );
 
 /**
@@ -36,7 +36,7 @@ router.post(
 router.delete(
   "/:id",
   passport.authenticate("jwt", { session: false }),
-  handlePostRoute.deletePost()
+  handlePostRoute.deletePost
 );
 
 /**
@@ -47,7 +47,7 @@ router.delete(
 router.post(
   "/like/:id",
   passport.authenticate("jwt", { session: false }),
-  handlePostRoute.likePost()
+  handlePostRoute.likePost
 );
 
 /**
@@ -58,7 +58,29 @@ router.post(
 router.post(
   "/unlike/:id",
   passport.authenticate("jwt", { session: false }),
-  handlePostRoute.unlikePost()
+  handlePostRoute.unlikePost
+);
+
+/**
+ * @route POST api/posts/comment/:id
+ * @desc add a Comment to a Post(:id)
+ * @access Private
+ */
+router.post(
+  "/comment/:id",
+  passport.authenticate("jwt", { session: false }),
+  handlePostRoute.addComment
+);
+
+/**
+ * @route DELETE api/posts/comment/:id/:comment_id
+ * @desc delete Comment(comment_id) from Post(id)
+ * @access Private
+ */
+router.delete(
+  "/comment/:id/:comment_id",
+  passport.authenticate("jwt", { session: false }),
+  handlePostRoute.deleteComment
 );
 
 module.exports = router;

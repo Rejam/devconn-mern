@@ -8,14 +8,14 @@ const handleAuthRoute = require("./handleAuthRoute");
  * @desc Register user
  * @access Public
  */
-router.post("/register", handleAuthRoute.register());
+router.post("/register", handleAuthRoute.register);
 
 /**
  * @route POST api/auth/login
  * @desc Login user / returning JWT token
  * @access Public
  */
-router.post("/login", handleAuthRoute.login());
+router.post("/login", handleAuthRoute.login);
 
 /** Test jwt and private route
  * @route GET api/auth/current

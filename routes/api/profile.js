@@ -11,7 +11,7 @@ const handleProfileRoute = require("./handleProfileRoute");
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
-  handleProfileRoute.getCurrentProfile()
+  handleProfileRoute.getCurrentProfile
 );
 
 /**
@@ -22,7 +22,7 @@ router.get(
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
-  handleProfileRoute.updateProfile()
+  handleProfileRoute.updateProfile
 );
 
 /**
@@ -30,21 +30,21 @@ router.post(
  * @desc Get profile by handle
  * @access Public
  */
-router.get("/handle/:handle", handleProfileRoute.getProfileByHandle());
+router.get("/handle/:handle", handleProfileRoute.getProfileByHandle);
 
 /**
  * @route GET api/profile/user/:user_id
  * @desc Get profile by userID
  * @access Public
  */
-router.get("/user/:user_id", handleProfileRoute.getProfileById());
+router.get("/user/:user_id", handleProfileRoute.getProfileById);
 
 /**
  * @route GET api/profile/all
  * @desc Get all user profiles
  * @access Public
  */
-router.get("/all", handleProfileRoute.getAllProfiles());
+router.get("/all", handleProfileRoute.getAllProfiles);
 
 /**
  * @route POST api/profile/experience
@@ -54,7 +54,7 @@ router.get("/all", handleProfileRoute.getAllProfiles());
 router.post(
   "/experience",
   passport.authenticate("jwt", { session: false }),
-  handleProfileRoute.addExperience()
+  handleProfileRoute.addExperience
 );
 
 /**
@@ -65,7 +65,7 @@ router.post(
 router.post(
   "/education",
   passport.authenticate("jwt", { session: false }),
-  handleProfileRoute.addEducation()
+  handleProfileRoute.addEducation
 );
 
 /**
@@ -76,7 +76,7 @@ router.post(
 router.delete(
   "/experience/:id",
   passport.authenticate("jwt", { session: false }),
-  handleProfileRoute.deleteExperience()
+  handleProfileRoute.deleteExperience
 );
 
 /**
@@ -87,7 +87,7 @@ router.delete(
 router.delete(
   "/education/:id",
   passport.authenticate("jwt", { session: false }),
-  handleProfileRoute.deleteEducation()
+  handleProfileRoute.deleteEducation
 );
 
 /**
@@ -98,7 +98,7 @@ router.delete(
 router.delete(
   "/",
   passport.authenticate("jwt", { session: false }),
-  handleProfileRoute.deleteUser()
+  handleProfileRoute.deleteUser
 );
 
 module.exports = router;

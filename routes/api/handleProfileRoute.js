@@ -8,7 +8,7 @@ const educationValidation = require("../../validation/education");
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
 
-const updateProfile = () => (req, res) => {
+const updateProfile = (req, res) => {
   // Build profile
   const newProfile = {
     user: req.user.id,
@@ -63,7 +63,7 @@ const updateProfile = () => (req, res) => {
   });
 };
 
-const getCurrentProfile = () => (req, res) => {
+const getCurrentProfile = (req, res) => {
   const errors = {};
   // pull user id from authenticated user
   const { id } = req.user;
@@ -83,7 +83,7 @@ const getCurrentProfile = () => (req, res) => {
     .catch(err => res.status(404).json(err));
 };
 
-const getProfileByHandle = () => (req, res) => {
+const getProfileByHandle = (req, res) => {
   const errors = {};
   const { handle } = req.params;
   Profile.findOne({ handle })
@@ -98,7 +98,7 @@ const getProfileByHandle = () => (req, res) => {
     .catch(err => res.status(404).json(err));
 };
 
-const getProfileById = () => (req, res) => {
+const getProfileById = (req, res) => {
   const errors = {};
   const { user_id } = req.params;
   Profile.findById(user_id)
@@ -115,7 +115,7 @@ const getProfileById = () => (req, res) => {
     );
 };
 
-const getAllProfiles = () => (req, res) => {
+const getAllProfiles = (req, res) => {
   const errors = {};
   Profile.find({})
     .populate("user", ["name", "avatar"])
@@ -126,10 +126,10 @@ const getAllProfiles = () => (req, res) => {
       }
       res.json(profiles);
     })
-    .catch(() => res.status(400).json({ profile: "No profiles found" }));
+    .catch(res.status(400).json({ profile: "No profiles found" }));
 };
 
-const addExperience = () => (req, res) => {
+const addExperience = (req, res) => {
   const newExp = {
     title: req.body.title,
     company: req.body.company,
@@ -159,7 +159,7 @@ const addExperience = () => (req, res) => {
   });
 };
 
-const addEducation = () => (req, res) => {
+const addEducation = (req, res) => {
   const newEdu = {
     school: req.body.school,
     degree: req.body.degree,
@@ -187,7 +187,7 @@ const addEducation = () => (req, res) => {
   });
 };
 
-const deleteExperience = () => (req, res) => {
+const deleteExperience = (req, res) => {
   const errors = {};
   const { id } = req.params;
   Profile.findOne({ user: req.user.id })
@@ -210,7 +210,7 @@ const deleteExperience = () => (req, res) => {
     .catch(err => res.status(404).json(err));
 };
 
-const deleteEducation = () => (req, res) => {
+const deleteEducation = (req, res) => {
   const errors = {};
   const { id } = req.params;
   Profile.findOne({ user: req.user.id }).then(profile => {
@@ -230,7 +230,7 @@ const deleteEducation = () => (req, res) => {
   });
 };
 
-const deleteUser = () => (req, res) => {
+const deleteUser = (req, res) => {
   const errors = {};
   const { id } = req.user;
   Profile.findOneAndRemove({ user: id }).then(profile =>

@@ -11,7 +11,7 @@ const loginValidation = require("../../validation/login");
 // User model
 const User = require("../../models/User");
 
-const register = () => (req, res) => {
+const register = (req, res) => {
   // validation
   const { errors, isValid } = validate(req.body, registerValidation);
   if (!isValid) return res.status(400).json(errors);
@@ -50,7 +50,7 @@ const register = () => (req, res) => {
   });
 };
 
-const login = () => (req, res) => {
+const login = (req, res) => {
   const { errors, isValid } = validate(req.body, loginValidation);
   if (!isValid) return res.status(400).json(errors);
 
