@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server",
-    "dev": "nodemon server | npm start --prefix client"
+    "server": "nodemon server",
+    "start": "nodemon server | npm start --prefix client",
+    "client": "npm start --prefix client"
   },
   "author": "Ryan James",
   "license": "MIT",
