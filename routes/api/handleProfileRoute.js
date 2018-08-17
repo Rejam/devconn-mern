@@ -1,5 +1,5 @@
 // Validation
-const validate = require("../../validation");
+const Joi = require("joi");
 const profileValidation = require("../../validation/profile");
 const experienceValidation = require("../../validation/experience");
 const educationValidation = require("../../validation/education");
@@ -31,36 +31,38 @@ const updateProfile = (req, res) => {
   const { skills } = req.body;
   newProfile.skills = skills ? skills.split(",").map(s => s.trim()) : [];
   // validate
-  const { errors, isValid } = validate(newProfile, profileValidation);
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-  // Check if profile already exists for user
-  Profile.findOne({ user: req.user.id }).then(profileExists => {
-    if (profileExists) {
-      // Profile exists => update
-      Profile.findOneAndUpdate(
-        { user: req.user.id },
-        { $set: newProfile },
-        { new: true }
-      ).then(updatedProfile => res.json(updatedProfile));
-    } else {
-      // profile doesn't exist
-      // check handle is unique
-      Profile.findOne({
-        handle: newProfile.handle
-      }).then(profileWithHandleExists => {
-        if (profileWithHandleExists) {
-          // @ts-ignore
-          errors.handle = "Handle already in use";
-          return res.status(400).json(errors);
+  Joi.validate(newProfile, profileValidation)
+    .then(() => {
+      // Check if profile already exists for user
+      Profile.findOne({ user: req.user.id }).then(profileExists => {
+        if (profileExists) {
+          // Profile exists => update
+          Profile.findOneAndUpdate(
+            { user: req.user.id },
+            { $set: newProfile },
+            { new: true }
+          ).then(updatedProfile => res.json(updatedProfile));
         } else {
-          // Save new profile
-          Profile.create(newProfile).then(newProfile => res.json(newProfile));
+          // profile doesn't exist
+          // check handle is unique
+          Profile.findOne({
+            handle: newProfile.handle
+          }).then(profileWithHandleExists => {
+            if (profileWithHandleExists) {
+              return res.status(400).json({
+                handle: "Handle already in use"
+              });
+            } else {
+              // Save new profile
+              Profile.create(newProfile).then(newProfile =>
+                res.json(newProfile)
+              );
+            }
+          });
         }
       });
-    }
-  });
+    })
+    .catch(error => error.details.map(err => err.message));
 };
 
 const getCurrentProfile = (req, res) => {
@@ -140,23 +142,21 @@ const addExperience = (req, res) => {
     description: req.body.description
   };
   // validate data
-  const { errors, isValid } = validate(newExp, experienceValidation);
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-  Profile.findOne({ user: req.user._id }).then(profile => {
-    // add to profile experience
-    if (!profile) {
-      // @ts-ignore
-      errors.profile = "Could not find profile";
-      res.status(404).json(errors);
-    }
-    profile.experience = [newExp, ...profile.experience];
-    profile
-      .save()
-      .then(profile => res.json(profile))
-      .catch(err => res.status(404).json(err));
-  });
+  Joi.validate(newExp, experienceValidation)
+    .then(() => {
+      Profile.findOne({ user: req.user._id }).then(profile => {
+        // add to profile experience
+        if (!profile) {
+          res.status(404).json({ profile: "Could not find profile" });
+        }
+        profile.experience = [newExp, ...profile.experience];
+        profile
+          .save()
+          .then(profile => res.json(profile))
+          .catch(err => res.status(404).json(err));
+      });
+    })
+    .catch(error => error.details.map(err => err.message));
 };
 
 const addEducation = (req, res) => {
@@ -170,21 +170,20 @@ const addEducation = (req, res) => {
     description: req.body.description
   };
   // Validate
-  const { errors, isValid } = validate(newEdu, educationValidation);
-  if (!isValid) res.status(400).json(errors);
-
-  Profile.findOne({ user: req.user.id }).then(profile => {
-    if (!profile) {
-      //@ts-ignore
-      errors.profile = "Could not find profile";
-      return res.status(404).json(errors);
-    }
-    profile.education = [newEdu, ...profile.education];
-    profile
-      .save()
-      .then(profile => res.json(profile))
-      .catch(err => res.status(404).json("Unable to save profile"));
-  });
+  Joi.validate(newEdu, educationValidation)
+    .then(() => {
+      Profile.findOne({ user: req.user.id }).then(profile => {
+        if (!profile) {
+          return res.status(404).json({ profile: "Could not find profile" });
+        }
+        profile.education = [newEdu, ...profile.education];
+        profile
+          .save()
+          .then(profile => res.json(profile))
+          .catch(err => res.status(404).json("Unable to save profile"));
+      });
+    })
+    .catch(error => error.details.map(err => err.message));
 };
 
 const deleteExperience = (req, res) => {
@@ -231,7 +230,6 @@ const deleteEducation = (req, res) => {
 };
 
 const deleteUser = (req, res) => {
-  const errors = {};
   const { id } = req.user;
   Profile.findOneAndRemove({ user: id }).then(profile =>
     User.findByIdAndRemove(id).then(user => res.json({ success: true }))

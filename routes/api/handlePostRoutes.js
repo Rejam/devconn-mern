@@ -2,7 +2,7 @@
 const Post = require("../../models/Post");
 
 // validation
-const validate = require("../../validation");
+const Joi = require("joi");
 const postValidation = require("../../validation/post");
 const commentValidation = require("../../validation/comment");
 
@@ -26,13 +26,13 @@ const addPost = (req, res) => {
     name: req.user.name,
     avatar: req.user.avatar
   };
-  const { errors, isValid } = validate(newPost, postValidation);
-
-  if (!isValid) return res.status(400).json(errors);
-
-  Post.create(newPost)
-    .then(post => res.json(post))
-    .catch(err => res.status(404).json(err));
+  Joi.validate(newPost, postValidation, { abortEarly: false })
+    .then(() => {
+      Post.create(newPost)
+        .then(post => res.json(post))
+        .catch(err => res.status(404).json(err));
+    })
+    .catch(error => error.details.map(err => err.message));
 };
 
 const deletePost = (req, res) => {
@@ -93,18 +93,21 @@ const addComment = (req, res) => {
   };
 
   // validate comment
-  const { errors, isValid } = validate(newComment, commentValidation);
-  if (!isValid) return res.status(400).json(errors);
-  // is valid
-  Post.findById(req.params.id)
-    .then(post => {
-      post.comments = [newComment, ...post.comments];
-      post
-        .save()
-        .then(post => res.json(post))
-        .catch(_ => res.status(404).json({ error: "Unable to save comment" }));
+  Joi.validate(newComment, commentValidation)
+    .then(() => {
+      Post.findById(req.params.id)
+        .then(post => {
+          post.comments = [newComment, ...post.comments];
+          post
+            .save()
+            .then(post => res.json(post))
+            .catch(_ =>
+              res.status(404).json({ error: "Unable to save comment" })
+            );
+        })
+        .catch(_ => res.status(404).json({ error: "Unable to find post" }));
     })
-    .catch(_ => res.status(404).json({ error: "Unable to find post" }));
+    .catch(error => error.details.map(err => err.message));
 };
 
 const deleteComment = (req, res) => {

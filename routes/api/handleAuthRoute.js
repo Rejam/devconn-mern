@@ -4,87 +4,97 @@ const jwt = require("jsonwebtoken");
 const secretOrKey = require("../../config/keys").secretOrKey;
 
 // Input validation
-const validate = require("../../validation/");
-const registerValidation = require("../../validation/register");
-const loginValidation = require("../../validation/login");
+const registerSchema = require("../../validation/register");
+const loginSchema = require("../../validation/login");
 
 // User model
 const User = require("../../models/User");
 
 const register = (req, res) => {
   // validation
-  const { errors, isValid } = validate(req.body, registerValidation);
-  if (!isValid) return res.status(400).json(errors);
-
-  const { name, email, password } = req.body;
-
-  // check if email already registerd
-  User.findOne({ email }).then(user => {
-    if (user) {
-      // @ts-ignore
-      errors.email = "Email already exists";
-      return res.status(400).json(errors);
-    } else {
-      // get profile avatar if associated with email
-      const avatar = gravatar.url(email, {
-        s: "200", // size
-        r: "pg", // rating
-        d: "mm" // deafult
-      });
-      const newUser = new User({
-        name,
-        email,
-        password,
-        avatar
-      });
-
-      // hash password before saving new user
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) throw err;
-          newUser.password = hash;
-          newUser.save().then(user => res.json(user));
+  registerSchema
+    .validate(req.body, {
+      abortEarly: false
+    })
+    .then(() => {
+      const { name, email, password } = req.body;
+      // check if email already registerd
+      User.findOne({ email }).then(user => {
+        if (user)
+          return res.status(400).json({ email: "Email already exists" });
+        // get profile avatar if associated with email
+        const avatar = gravatar.url(email, {
+          s: "200", // size
+          r: "pg", // rating
+          d: "mm" // deafult
+        });
+        const newUser = new User({
+          name,
+          email,
+          password,
+          avatar
+        });
+        // hash password before saving new user
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            newUser.password = hash;
+            newUser.save().then(user => res.json(user));
+          });
         });
       });
-    }
-  });
+    })
+    .catch(errors => {
+      res
+        .status(404)
+        .json(
+          errors.details.reduce(
+            (acc, err) => ({ ...acc, [err.context.key]: err.context.label }),
+            {}
+          )
+        );
+    });
 };
 
 const login = (req, res) => {
-  const { errors, isValid } = validate(req.body, loginValidation);
-  if (!isValid) return res.status(400).json(errors);
-
-  const { email, password } = req.body;
-  // Find user by email
-  User.findOne({ email }).then(user => {
-    if (!user) {
-      // @ts-ignore
-      errors.email = "User not found";
-      return res.status(404).json(errors);
-    } else {
-      // Check password with hashed password
-      bcrypt.compare(password, user.password).then(isMatch => {
-        if (!isMatch) {
-          // Did not match, return error
-          // @ts-ignore
-          errors.password = "Password incorrect";
-          return res.status(400).json(errors);
-        } else {
-          // Matched, return jsonwebtoken
-          const payload = {
-            id: user.id,
-            name: user.name
-          };
-          jwt.sign(payload, secretOrKey, { expiresIn: 3600 }, (err, token) => {
-            res.json({
-              success: true,
-              token: `Bearer ${token}`
-            });
+  loginSchema
+    .validate(req.body, {
+      abortEarly: false
+    })
+    .then(() => {
+      const { email, password } = req.body;
+      // Find user by email
+      User.findOne({ email })
+        .then(user => {
+          if (!user) return res.status(404).json({ email: "User not found" });
+          // Check password with hashed password
+          bcrypt.compare(password, user.password).then(isMatch => {
+            if (!isMatch)
+              // Did not match, return error
+              return res.status(400).json({ password: "Password incorrect" });
+            // Matched, return jsonwebtoken
+            const payload = {
+              id: user.id,
+              name: user.name
+            };
+            jwt.sign(
+              payload,
+              secretOrKey,
+              { expiresIn: 3600 },
+              (err, token) => {
+                res.json({
+                  success: true,
+                  token: `Bearer ${token}`
+                });
+              }
+            );
           });
-        }
-      });
-    }
-  });
+        })
+        .catch(() => res.status(404).json({ error: "User not found" }));
+    })
+    .catch(error =>
+      res.status(400).json(error.details.map(err => err.message))
+    );
 };
 
 module.exports = {
