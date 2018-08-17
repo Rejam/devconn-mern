@@ -14,7 +14,13 @@ class Login extends Component {
   handleSubmit = e => {
     e.preventDefault();
     const user = { ...this.state };
-    console.log(user);
+    fetch("api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user)
+    })
+      .then(res => res.json())
+      .then(json => console.log(json));
   };
 
   render() {

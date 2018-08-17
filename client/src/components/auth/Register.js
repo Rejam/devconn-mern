@@ -1,11 +1,13 @@
 import React, { Component } from "react";
+import axios from "axios";
 
 class Register extends Component {
   state = {
     name: "",
     email: "",
     password: "",
-    password2: ""
+    password2: "",
+    errors: {}
   };
 
   handleChange = e => {
@@ -16,7 +18,10 @@ class Register extends Component {
   handleSubmit = e => {
     e.preventDefault();
     const newUser = { ...this.state };
-    console.log(newUser);
+    axios
+      .post("api/auth/register", newUser)
+      .then(res => res)
+      .catch(err => this.setState({ errors: err.response.data }));
   };
 
   render() {
@@ -40,6 +45,9 @@ class Register extends Component {
                       value={this.state.name}
                       onChange={this.handleChange}
                     />
+                    {this.state.errors.name && (
+                      <p className="text-danger">{this.state.errors.name}</p>
+                    )}
                   </div>
                   <div className="form-group">
                     <input
@@ -50,6 +58,9 @@ class Register extends Component {
                       value={this.state.email}
                       onChange={this.handleChange}
                     />
+                    {this.state.errors.email && (
+                      <p className="text-danger">{this.state.errors.email}</p>
+                    )}
                     <small className="form-text text-muted">
                       This site uses Gravatar so if you want a profile image,
                       use a Gravatar email
@@ -64,6 +75,11 @@ class Register extends Component {
                       value={this.state.password}
                       onChange={this.handleChange}
                     />
+                    {this.state.errors.password && (
+                      <p className="text-danger">
+                        {this.state.errors.password}
+                      </p>
+                    )}
                   </div>
                   <div className="form-group">
                     <input
@@ -74,6 +90,11 @@ class Register extends Component {
                       value={this.state.password2}
                       onChange={this.handleChange}
                     />
+                    {this.state.errors.password2 && (
+                      <p className="text-danger">
+                        {this.state.errors.password2}
+                      </p>
+                    )}
                   </div>
                   <input
                     type="submit"

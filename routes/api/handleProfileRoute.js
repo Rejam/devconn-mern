@@ -122,11 +122,11 @@ const getAllProfiles = (req, res) => {
     .then(profiles => {
       if (!profiles.length) {
         errors.profile("No profiles found");
-        res.status(404).json(errors);
+        return res.status(404).json(errors);
       }
-      res.json(profiles);
+      return res.json(profiles);
     })
-    .catch(res.status(400).json({ profile: "No profiles found" }));
+    .catch(_ => res.status(400).json({ profile: "No profiles found" }));
 };
 
 const addExperience = (req, res) => {
