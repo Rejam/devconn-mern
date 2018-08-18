@@ -22,7 +22,17 @@ class Register extends Component {
     const newUser = { ...this.state.user };
     axios
       .post("api/auth/register", newUser)
-      .then(res => res)
+      .then(res =>
+        this.setState({
+          user: {
+            name: "",
+            email: "",
+            password: "",
+            password2: ""
+          },
+          errors: {}
+        })
+      )
       .catch(err => this.setState({ errors: err.response.data }));
   };
 

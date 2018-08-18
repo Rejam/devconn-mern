@@ -2,21 +2,20 @@
 const Post = require("../../models/Post");
 
 // validation
-const Joi = require("joi");
-const postValidation = require("../../validation/post");
-const commentValidation = require("../../validation/comment");
+const postSchema = require("../../validation/post");
+const commentSchema = require("../../validation/comment");
 
 const getAllPosts = (req, res) => {
   Post.find({})
     .sort({ date: "desc" })
     .then(posts => res.json(posts))
-    .catch(err => res.status(404).json(err));
+    .catch(() => res.status(404).json({ post: "Could not get posts" }));
 };
 
 const getPost = (req, res) => {
   Post.findById(req.params.id)
     .then(post => res.json(post))
-    .catch(_ => res.status(404).json({ error: "Could not find post" }));
+    .catch(() => res.status(404).json({ post: "Could not find post" }));
 };
 
 const addPost = (req, res) => {
@@ -26,11 +25,12 @@ const addPost = (req, res) => {
     name: req.user.name,
     avatar: req.user.avatar
   };
-  Joi.validate(newPost, postValidation, { abortEarly: false })
+  postSchema
+    .validate(newPost, { abortEarly: false })
     .then(() => {
       Post.create(newPost)
         .then(post => res.json(post))
-        .catch(err => res.status(404).json(err));
+        .catch(() => res.status(404).json({ post: "Could not create post" }));
     })
     .catch(error => error.details.map(err => err.message));
 };
@@ -58,6 +58,7 @@ const likePost = (req, res) => {
         return res
           .status(403)
           .json({ error: "User has already liked this post" });
+
       post.likes = [...post.likes, req.user.id];
       post
         .save()
@@ -93,7 +94,8 @@ const addComment = (req, res) => {
   };
 
   // validate comment
-  Joi.validate(newComment, commentValidation)
+  commentSchema
+    .validate(newComment, { abortEarly: false })
     .then(() => {
       Post.findById(req.params.id)
         .then(post => {
@@ -101,11 +103,11 @@ const addComment = (req, res) => {
           post
             .save()
             .then(post => res.json(post))
-            .catch(_ =>
+            .catch(() =>
               res.status(404).json({ error: "Unable to save comment" })
             );
         })
-        .catch(_ => res.status(404).json({ error: "Unable to find post" }));
+        .catch(() => res.status(404).json({ error: "Unable to find post" }));
     })
     .catch(error => error.details.map(err => err.message));
 };
