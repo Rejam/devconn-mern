@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import React from "react";
 import axios from "axios";
 
-class Register extends Component {
+class Register extends React.Component {
   state = {
     user: {
       name: "",

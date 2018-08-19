@@ -44,7 +44,7 @@ const register = (req, res) => {
         });
       });
     })
-    .catch(errors => {
+    .catch(errors =>
       res
         .status(404)
         .json(
@@ -52,17 +52,21 @@ const register = (req, res) => {
             (acc, err) => ({ ...acc, [err.context.key]: err.context.label }),
             {}
           )
-        );
-    });
+        )
+    );
 };
 
 const login = (req, res) => {
+  const credentials = {
+    email: req.body.email,
+    password: req.body.password
+  };
   loginSchema
-    .validate(req.body, {
+    .validate(credentials, {
       abortEarly: false
     })
     .then(() => {
-      const { email, password } = req.body;
+      const { email, password } = credentials;
       // Find user by email
       User.findOne({ email })
         .then(user => {
@@ -92,9 +96,18 @@ const login = (req, res) => {
         })
         .catch(() => res.status(404).json({ error: "User not found" }));
     })
-    .catch(error =>
-      res.status(400).json(error.details.map(err => err.message))
-    );
+    .catch(errors => {
+      console.log(errors);
+      return res.status(400).json(
+        errors.details.reduce(
+          (acc, err) => ({
+            ...acc,
+            [err.context.key]: err.context.label
+          }),
+          {}
+        )
+      );
+    });
 };
 
 module.exports = {
