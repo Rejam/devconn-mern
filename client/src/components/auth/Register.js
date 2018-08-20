@@ -1,117 +1,84 @@
 import React from "react";
-import axios from "axios";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { register } from "../../actions/authActions";
 
 class Register extends React.Component {
-  state = {
-    user: {
-      name: "",
-      email: "",
-      password: "",
-      password2: ""
-    },
-    errors: {}
-  };
-
-  handleChange = e => {
-    const { name, value } = e.target;
-    this.setState({ user: { ...this.state.user, [name]: value } });
-  };
-
   handleSubmit = e => {
     e.preventDefault();
-    const newUser = { ...this.state.user };
-    axios
-      .post("api/auth/register", newUser)
-      .then(res =>
-        this.setState({
-          user: {
-            name: "",
-            email: "",
-            password: "",
-            password2: ""
-          },
-          errors: {}
-        })
-      )
-      .catch(err => this.setState({ errors: err.response.data }));
+    const { name, email, password, password2 } = e.target.elements;
+    const newUser = {
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      password2: password2.value
+    };
+    this.props.register(newUser);
   };
 
   render() {
-    const { errors, user } = this.state;
+    const { errors } = this.props;
     return (
-      <div className="container">
-        <div className="register">
-          <div className="container">
-            <div className="row">
-              <div className="col-md-8 m-auto">
-                <h1 className="display-4 text-center">Sign Up</h1>
-                <p className="lead text-center">
-                  Create your DevConnector account
-                </p>
-                <form
-                  noValidate
-                  className="needs-validation"
-                  onSubmit={this.handleSubmit}
-                >
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      className={`form-control form-control-lg
-                        ${errors.name && "is-invalid"}`}
-                      placeholder="Name"
-                      name="name"
-                      value={user.name}
-                      onChange={this.handleChange}
-                    />
-                    <div className="invalid-feedback">{errors.name}</div>
-                  </div>
-                  <div className="form-group">
-                    <input
-                      type="email"
-                      className={`form-control form-control-lg
-                    ${errors.email && "is-invalid"}`}
-                      placeholder="Email Address"
-                      name="email"
-                      value={user.email}
-                      onChange={this.handleChange}
-                    />
-                    <div className="invalid-feedback">{errors.email}</div>
-                    <small className="form-text text-muted">
-                      This site uses Gravatar so if you want a profile image,
-                      use a Gravatar email
-                    </small>
-                  </div>
-                  <div className="form-group">
-                    <input
-                      type="password"
-                      className={`form-control form-control-lg
-                      ${errors.password && "is-invalid"}`}
-                      placeholder="Password"
-                      name="password"
-                      value={user.password}
-                      onChange={this.handleChange}
-                    />
-                    <div className="invalid-feedback">{errors.password}</div>
-                  </div>
-                  <div className="form-group">
-                    <input
-                      type="password"
-                      className={`form-control form-control-lg ${this.state
-                        .errors.password2 && "is-invalid"}`}
-                      placeholder="Confirm Password"
-                      name="password2"
-                      value={user.password2}
-                      onChange={this.handleChange}
-                    />
-                    <div className="invalid-feedback">{errors.password2}</div>
-                  </div>
-                  <input
-                    type="submit"
-                    className="btn btn-info btn-block mt-4"
-                  />
-                </form>
+      <div className="register container">
+        <div className="row">
+          <div className="col-md-8 m-auto">
+            <h1 className="display-4 text-center">Sign Up</h1>
+            <p className="lead text-center">Create your DevConnector account</p>
+            <form
+              noValidate
+              className="needs-validation"
+              onSubmit={this.handleSubmit}
+            >
+              <div className="form-group">
+                <input
+                  type="text"
+                  className={`form-control form-control-lg ${
+                    errors.name ? "is-invalid" : ""
+                  }`}
+                  placeholder="Name"
+                  name="name"
+                />
+                <div className="invalid-feedback">{errors.name}</div>
               </div>
-            </div>
+              <div className="form-group">
+                <input
+                  type="email"
+                  className={`form-control form-control-lg ${
+                    errors.email ? "is-invalid" : ""
+                  }`}
+                  placeholder="Email Address"
+                  name="email"
+                />
+                <div className="invalid-feedback">{errors.email}</div>
+                <small className="form-text text-muted">
+                  This site uses Gravatar. For a profile image, use a Gravatar
+                  email
+                </small>
+              </div>
+              <div className="form-group">
+                <input
+                  type="password"
+                  className={`form-control form-control-lg ${
+                    errors.password ? "is-invalid" : ""
+                  }`}
+                  placeholder="Password"
+                  name="password"
+                />
+                <div className="invalid-feedback">{errors.password}</div>
+              </div>
+              <div className="form-group">
+                <input
+                  type="password"
+                  className={`form-control form-control-lg ${
+                    errors.password2 ? "is-invalid" : ""
+                  }`}
+                  placeholder="Confirm Password"
+                  name="password2"
+                />
+                <div className="invalid-feedback">{errors.password2}</div>
+              </div>
+              <input type="submit" className="btn btn-info btn-block mt-4" />
+            </form>
           </div>
         </div>
       </div>
@@ -119,4 +86,16 @@ class Register extends React.Component {
   }
 }
 
-export default Register;
+Register.propTypes = {
+  register: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  errors: state.errors
+});
+
+export default connect(
+  mapStateToProps,
+  { register }
+)(Register);

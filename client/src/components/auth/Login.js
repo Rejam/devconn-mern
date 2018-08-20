@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import { connect } from "react-redux";
 
 class Login extends React.Component {
   state = {
@@ -89,4 +90,4 @@ class Login extends React.Component {
   }
 }
 
-export default Login;
+export default connect()(Login);

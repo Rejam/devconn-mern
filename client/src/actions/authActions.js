@@ -1,14 +1,17 @@
-import Register from "../components/auth/Register";
-
-const authActions = {
-  LOGIN: "LOGIN",
-  REGISTER: "REGISTER"
-};
+import axios from "axios";
+import { GET_ERRORS } from "./";
 
 // Register user
-export const registerUser = userData => ({
-  type: authActions.REGISTER,
-  payload: userData
-});
-
-export default authActions;
+export const register = userData => dispatch => {
+  return axios
+    .post("api/auth/register", userData)
+    .then(res => {
+      console.log(res);
+    })
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
