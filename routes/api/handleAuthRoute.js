@@ -79,7 +79,8 @@ const login = (req, res) => {
             // Matched, return jsonwebtoken
             const payload = {
               id: user.id,
-              name: user.name
+              name: user.name,
+              avatar: user.avatar
             };
             jwt.sign(
               payload,

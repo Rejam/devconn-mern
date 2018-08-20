@@ -1,8 +1,10 @@
 import React from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 class Navbar extends React.Component {
   render() {
+    console.log(this.props);
     return (
       <nav className="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
         <div className="container">
@@ -28,18 +30,28 @@ class Navbar extends React.Component {
               </li>
             </ul>
 
-            <ul className="navbar-nav ml-auto">
-              <li className="nav-item">
-                <Link to="/register" className="nav-link">
-                  Sign Up
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/login" className="nav-link">
-                  Login
-                </Link>
-              </li>
-            </ul>
+            {!this.props.isAuthenticated ? (
+              <ul className="navbar-nav ml-auto">
+                <li className="nav-item">
+                  <Link to="/register" className="nav-link">
+                    Sign Up
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="/login" className="nav-link">
+                    Login
+                  </Link>
+                </li>
+              </ul>
+            ) : (
+              <ul className="navbar-nav ml-auto">
+                <li className="nav-item">
+                  <Link to="/login" className="nav-link">
+                    {this.props.user.name}
+                  </Link>
+                </li>
+              </ul>
+            )}
           </div>
         </div>
       </nav>
@@ -47,4 +59,9 @@ class Navbar extends React.Component {
   }
 }
 
-export default Navbar;
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated,
+  user: state.auth.user
+});
+
+export default connect(mapStateToProps)(Navbar);

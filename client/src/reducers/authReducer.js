@@ -1,4 +1,4 @@
-import { REGISTER } from "../actions";
+import { LOGIN, LOGOUT } from "../actions";
 
 const initialState = {
   isAuthenticated: false,
@@ -7,8 +7,13 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case REGISTER:
-      return { ...state, user: action.payload };
+    case LOGIN:
+      return { isAuthenticated: true, user: action.payload };
+    case LOGOUT:
+      return {
+        isAuthenticated: false,
+        user: {}
+      };
     default:
       return state;
   }
