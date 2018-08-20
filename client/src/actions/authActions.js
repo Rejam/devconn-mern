@@ -1,7 +1,7 @@
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
-import { LOGIN } from "./";
+import { LOGIN, LOGOUT } from "./";
 import { logErrors, clearErrors } from "./errorActions";
 
 // Register user
@@ -38,3 +38,12 @@ const setCurrentUser = userData => ({
   type: LOGIN,
   payload: userData
 });
+
+// Log out
+export const logout = () => dispatch => {
+  localStorage.removeItem("jwtToken");
+  setAuthToken();
+  dispatch({
+    type: LOGOUT
+  });
+};
